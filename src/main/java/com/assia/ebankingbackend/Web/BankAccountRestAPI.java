@@ -1,9 +1,8 @@
 package com.assia.ebankingbackend.Web;
 
-import com.assia.ebankingbackend.Dtos.AccountHistoryDTO;
-import com.assia.ebankingbackend.Dtos.AccountOperationDTO;
-import com.assia.ebankingbackend.Dtos.BankAccountDTO;
+import com.assia.ebankingbackend.Dtos.*;
 import com.assia.ebankingbackend.Services.BankAccountService;
+import com.assia.ebankingbackend.exceptions.BalanceNotSufficentException;
 import com.assia.ebankingbackend.exceptions.BankAccountNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
@@ -39,5 +38,21 @@ public class BankAccountRestAPI {
             @RequestParam(name = "size",defaultValue = "5") int size) throws BankAccountNotFoundException {
         return bankAccountService.getAccountHistory(accountId,page,size);
     }
-
-}
+    @PostMapping("/accounts/debit")
+    public DebitDTO debit(@RequestBody DebitDTO debitDTO) throws BankAccountNotFoundException, BalanceNotSufficentException {
+        this.bankAccountService.debit(debitDTO.getAccountId(),debitDTO.getAmount(),debitDTO.getDescription());
+        return debitDTO;
+    }
+    @PostMapping("/accounts/credit")
+    public CreditDTO credit(@RequestBody CreditDTO creditDTO) throws BankAccountNotFoundException {
+        this.bankAccountService.credit(creditDTO.getAccountId(), creditDTO.getAmount(), creditDTO.getDescription());
+        return creditDTO;
+    }
+    @PostMapping("/accounts/transfer")
+    public void transfer(@RequestBody TransferRequestDTO transferRequestDTO) throws BankAccountNotFoundException, BalanceNotSufficentException {
+        this.bankAccountService.transfer(
+                transferRequestDTO.getAccountSource(),
+                transferRequestDTO.getAccountDestination(),
+                transferRequestDTO.getAmount());
+    }
+    }
